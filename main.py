@@ -54,7 +54,3 @@ def navigate_to_url_page(selected_url, df):
 
     for column in columns_to_display:
         st.write(column + ":", filtered_df2[column].iloc[0])
-
-
-    unique_urls = df['url'].unique()
-    for i in unique_urls:
