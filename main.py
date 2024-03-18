@@ -54,3 +54,25 @@ def navigate_to_url_page(selected_url, df):
 
     for column in columns_to_display:
         st.write(column + ":", filtered_df2[column].iloc[0])
+
+st.title("Upload Processed CSV")
+
+# Define variables
+df = None
+unique_urls = None
+
+# File uploader for selecting CSV file
+csv_file = st.file_uploader("CSV file", type=["csv"])
+
+# Display buttons for each unique URL when CSV file is uploaded
+if csv_file is not None:
+    df, unique_urls = process_csv(csv_file)
+    # Display buttons for each unique URL
+    for url in unique_urls:
+        if st.button(url):
+            navigate_to_url_page(url, df)
+
+# Check if query parameter contains selected URL
+if "url" in st.experimental_get_query_params():
+    selected_url = st.experimental_get_query_params()["url"]
+    st.write(f"Selected URL: {selected_url}")
