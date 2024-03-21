@@ -85,7 +85,7 @@ def navigate_to_url_page(selected_url, df):
     # st.write(filtered_df2["Overlaps Duration (Mono Left)"].iloc[0])
     # st.write(filtered_df2["Overlaps Percent (Mono Right)"].iloc[0])
     # st.write(filtered_df2["Overlaps Percent (Mono Left)"].iloc[0])
-    for column, values in filtered_df2.iteritems():
+    for column, values in filtered_df2.iterrows():
         st.write(f"{column} : {values.values[0]}")
     labels = ["Total","Right","Left"]
     st.set_option('deprecation.showPyplotGlobalUse', False)
