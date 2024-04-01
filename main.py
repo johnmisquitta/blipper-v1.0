@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 import librosa
-
+import numpy as np
 st.set_page_config(layout="wide")
 import re
 import matplotlib.pyplot as plt
@@ -45,7 +45,11 @@ def navigate_to_url_page(selected_url, df):
     #st.write(filtered_df2)
 
     st.title('Call Analysis')
-    
+    st.markdown("Duration of call (Rounded/Actual) - 10 mins / 10:00 mins")
+    st.markdown("Call Language - English")
+    st.markdown("Audited By - Blipper")
+    #st.link_button("https://s3-ap-southeast-1.amazonaws.com/exotelrecordings/futwork1/60aced48f799c37f5ee3567c9a9217b1.mp3")
+    st.markdown("https://s3-ap-southeast-1.amazonaws.com/exotelrecordings/futwork1/60aced48f799c37f5ee3567c9a9217b1.mp3")
     # Print other details
     columns_to_display = [
     "Total Call Duration",
@@ -85,7 +89,7 @@ def navigate_to_url_page(selected_url, df):
     # st.write(filtered_df2["Overlaps Duration (Mono Left)"].iloc[0])
     # st.write(filtered_df2["Overlaps Percent (Mono Right)"].iloc[0])
     # st.write(filtered_df2["Overlaps Percent (Mono Left)"].iloc[0])
-    for column, values in filtered_df2.iterrows():
+    for column, values in filtered_df2.iteritems():
         st.write(f"{column} : {values.values[0]}")
     labels = ["Total","Right","Left"]
     st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -172,6 +176,66 @@ def navigate_to_url_page(selected_url, df):
     st.pyplot(fig)
 
 
+    frames = librosa.stft(y=y, n_fft=1024, hop_length=512)
+    energy = np.abs(frames) ** 2
+    ste = np.sum(energy, axis=0) / energy.shape[0]
+    window_size=100
+    ste_smoothed = np.convolve(ste, np.ones(window_size) / window_size, mode='same')
+    threshold=0.01
+
+    speech_segments = ste_smoothed > threshold
+
+
+        # Your existing code for plotting
+    fig2 = plt.figure(figsize=(20, 2))
+    plt.plot(ste_smoothed)
+    plt.fill_between(np.arange(len(ste_smoothed)), ste_smoothed, threshold, where=speech_segments, color='blue', alpha=0.2)
+    plt.xlabel("Time (frames)")
+    plt.ylabel("Enery")
+    plt.title("Speech Detection using STE")
+
+    # Display the plot in Streamlit
+    st.pyplot(fig2)
+            
+
+    D = np.abs(librosa.stft(y))
+    spectrogram = librosa.amplitude_to_db(D, ref=np.max)
+
+    # Display the spectrogram using Streamlit
+    st.write('Spectrogram:')
+    fig, ax = plt.subplots(figsize=(20, 2))
+    img = librosa.display.specshow(spectrogram, sr=sr, x_axis='time', y_axis='hz', ax=ax)
+    colorbar = plt.colorbar(img, format='%+2.0f dB')  # Specify the mappable object for the colorbar
+    st.pyplot(fig)
+
+
+
+    audio =(f'./output_files/{cleaned_url}_left.mp3')
+    y,sr=librosa.load(audio)
+
+    frames = librosa.stft(y=y, n_fft=1024, hop_length=512)
+    energy = np.abs(frames) ** 2
+    ste = np.sum(energy, axis=0) / energy.shape[0]
+    window_size=100
+    ste_smoothed = np.convolve(ste, np.ones(window_size) / window_size, mode='same')
+    threshold=0.01
+
+    speech_segments = ste_smoothed > threshold
+
+
+        # Your existing code for plotting
+    fig2 = plt.figure(figsize=(20, 2))
+    plt.plot(ste_smoothed)
+    plt.fill_between(np.arange(len(ste_smoothed)), ste_smoothed, threshold, where=speech_segments, color='red', alpha=0.2)
+    plt.xlabel("Time (frames)")
+    plt.ylabel("Enery")
+    plt.title("Speech Detection using STE")
+
+    # Display the plot in Streamlit
+    st.pyplot(fig2)
+
+
+
 
     if first_start_timestamp_mono_left>10 and call_duration > 10:
         st.markdown(background_style, unsafe_allow_html=True)
@@ -253,9 +317,29 @@ def navigate_to_url_page(selected_url, df):
 
             #display(Audio(data=clip, rate=sr, autoplay=False))
     else:
+        st.markdown("### MATRIC_ID [ID_1_1]")
         st.markdown(background_style, unsafe_allow_html=True)
 
         st.markdown(f"<div class='custom-green-background'>id_1_1_Pass</div>", unsafe_allow_html=True)
+
+        st.divider()
+        st.markdown("### MATRIC_ID [ID_2_1]")
+
+        st.markdown(f"<div class='custom-green-background'>id_2_1_Pass</div>", unsafe_allow_html=True)
+        st.divider()
+        st.markdown("### MATRIC_ID [ID_3_1]")
+
+        st.markdown(f"<div class='custom-red-background'>id_3_1_Fail</div>", unsafe_allow_html=True)
+        st.divider()
+        st.markdown("### MATRIC_ID [ID_4_1]")
+
+        st.markdown(f"<div class='custom-red-background'>id_4_1_Pass</div>", unsafe_allow_html=True)
+        st.divider()
+        st.markdown("### MATRIC_ID [ID_6_1]")
+
+        st.markdown(f"<div class='custom-green-background'>id_6_1_Fail</div>", unsafe_allow_html=True)
+
+        st.title("Call Score 60%")
 
 
 
